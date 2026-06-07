@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SpyFall
 
-## Getting Started
+A polished, mobile-first web version of the Spyfall party game — built for playing with friends, no accounts or backend required.
 
-First, run the development server:
+## How to play
+
+One player is secretly the **spy**. Everyone else shares a secret location and a role within it. Players take turns asking each other questions to figure out who doesn't know the location — while the spy tries to blend in and guess the location before being caught.
+
+## Features
+
+- **No accounts needed** — each player gets a unique shareable link with their role encoded
+- **Mobile-first design** — works great on phones; share links via iMessage or WhatsApp
+- **Adjustable timer** — 3 to 15 minutes
+- **1 or 2 spies** — crank up the chaos
+- **27 built-in locations** — Airplane, Casino, Pirate Ship, Space Station, and more
+- **Location filter** — pick exactly which locations are in play
+- **Live countdown** with urgency indicator when time is running low
+- **All locations list** visible to every player to aid deduction
+
+## Getting started
 
 ```bash
+git clone https://github.com/LUCASDREYER/spyfall.git
+cd spyfall
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How a round works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Host opens the app**, enters all player names, sets the timer and spy count, picks locations, then clicks **Generate Cards**.
+2. **Host sends each player their unique link** — copy it and paste it into a group chat, or open it directly on their phone.
+3. **Each player opens their own link** and taps **Reveal** to see their role (or "YOU ARE THE SPY").
+4. Players take turns asking and answering one question each. Anyone can call a vote to accuse the spy.
+5. When time runs out (or a vote passes), the spy reveals themselves and tries to guess the location.
 
-## Learn More
+## Tech stack
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js 14](https://nextjs.org/) (App Router)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Framer Motion](https://www.framer.com/motion/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploying
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The easiest option is [Vercel](https://vercel.com/) — connect your GitHub repo and it deploys automatically on every push, for free.
 
-## Deploy on Vercel
+## Roadmap
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Voting round UI
+- [ ] Custom location creator
+- [ ] QR codes on the host page
+- [ ] Real-time shared timer via Supabase
