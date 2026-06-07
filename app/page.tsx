@@ -7,16 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { DEFAULT_LOCATION_NAMES, LOCATIONS } from "@/lib/locations";
 import { generateGame, encodeToken } from "@/lib/game";
-import { Eye, EyeOff, Plus, Trash2, Users, Clock, MapPin, Skull } from "lucide-react";
+import { Eye, EyeOff, Plus, Trash2, Users, MapPin, Skull } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
   const [players, setPlayers] = useState<string[]>(["", ""]);
-  const [timerMinutes, setTimerMinutes] = useState(8);
   const [spyCount, setSpyCount] = useState(1);
   const [selectedLocations, setSelectedLocations] = useState<Set<string>>(
     new Set(DEFAULT_LOCATION_NAMES)
@@ -62,7 +60,7 @@ export default function Home() {
 
     const game = generateGame({
       players: filled,
-      timerMinutes,
+      timerMinutes: 0,
       spyCount,
       locationNames: Array.from(selectedLocations),
     });
@@ -71,8 +69,8 @@ export default function Home() {
     game.tokens.forEach((t, i) => {
       params.set(`p${i}`, encodeToken(t));
     });
-    params.set("names", filled.join(","));
-    router.push(`/host?${params.toString()}`);
+    params.set("count", String(filled.length));
+    router.push(`/game?${params.toString()}`);
   };
 
   return (
@@ -141,26 +139,6 @@ export default function Home() {
         {/* Settings */}
         <Card className="bg-slate-800/60 border-slate-700 backdrop-blur">
           <CardContent className="pt-5 space-y-5">
-            {/* Timer */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-slate-300 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-purple-400" /> Timer
-                </Label>
-                <span className="text-white font-semibold">{timerMinutes} min</span>
-              </div>
-              <Slider
-                min={3}
-                max={15}
-                step={1}
-                value={[timerMinutes]}
-                onValueChange={(v) => setTimerMinutes(Array.isArray(v) ? v[0] : v)}
-              />
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>3 min</span><span>15 min</span>
-              </div>
-            </div>
-
             {/* Spy count */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -262,7 +240,7 @@ export default function Home() {
           size="lg"
           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg h-14 rounded-xl shadow-lg shadow-purple-900/40"
         >
-          Generate Cards
+          Deal Cards
         </Button>
       </motion.div>
     </main>
