@@ -8,19 +8,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { DEFAULT_LOCATION_NAMES, LOCATIONS } from "@/lib/locations";
 import { generateGame, encodeToken } from "@/lib/game";
+import { useI18n, LANGS } from "@/lib/i18n";
+import { getLocations, getLocationNames } from "@/lib/locations-i18n";
 import { Eye, EyeOff, Plus, Trash2, Users, MapPin, Skull } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
+  const { lang, setLang, t } = useI18n();
+
+  const allLocations = getLocations(lang);
+  const allLocationNames = getLocationNames(lang);
+
   const [players, setPlayers] = useState<string[]>(["", ""]);
   const [spyCount, setSpyCount] = useState(1);
   const [selectedLocations, setSelectedLocations] = useState<Set<string>>(
-    new Set(DEFAULT_LOCATION_NAMES)
+    new Set(allLocationNames)
   );
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [error, setError] = useState("");
+
+  // When language changes, reset selected locations to the new language's names
+  const handleSetLang = (l: typeof lang) => {
+    setLang(l);
+    setSelectedLocations(new Set(getLocationNames(l)));
+    setError("");
+  };
 
   const addPlayer = () => {
     if (players.length < 12) setPlayers([...players, ""]);
@@ -48,14 +61,8 @@ export default function Home() {
 
   const startGame = () => {
     const filled = players.map((p) => p.trim()).filter(Boolean);
-    if (filled.length < 2) {
-      setError("Add at least 2 players.");
-      return;
-    }
-    if (spyCount >= filled.length) {
-      setError("Spy count must be less than player count.");
-      return;
-    }
+    if (filled.length < 2) { setError(t("errMinPlayers")); return; }
+    if (spyCount >= filled.length) { setError(t("errSpyCount")); return; }
     setError("");
 
     const game = generateGame({
@@ -63,12 +70,11 @@ export default function Home() {
       timerMinutes: 0,
       spyCount,
       locationNames: Array.from(selectedLocations),
+      lang,
     });
 
     const params = new URLSearchParams();
-    game.tokens.forEach((t, i) => {
-      params.set(`p${i}`, encodeToken(t));
-    });
+    game.tokens.forEach((tok, i) => params.set(`p${i}`, encodeToken(tok)));
     params.set("count", String(filled.length));
     router.push(`/game?${params.toString()}`);
   };
@@ -81,18 +87,36 @@ export default function Home() {
         className="w-full max-w-lg space-y-5"
       >
         {/* Header */}
-        <div className="text-center space-y-1">
+        <div className="text-center space-y-2">
           <h1 className="text-5xl font-black tracking-tight text-white">
             Spy<span className="text-purple-400">Fall</span>
           </h1>
-          <p className="text-slate-400 text-sm">Who among you is the spy?</p>
+          <p className="text-slate-400 text-sm">{t("subtitle")}</p>
+
+          {/* Language switcher */}
+          <div className="flex items-center justify-center gap-1 pt-1">
+            {LANGS.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => handleSetLang(l.code)}
+                title={l.label}
+                className={`text-xl rounded-lg px-2 py-1 transition-all ${
+                  lang === l.code
+                    ? "bg-purple-600/40 ring-2 ring-purple-500 scale-110"
+                    : "opacity-50 hover:opacity-80"
+                }`}
+              >
+                {l.flag}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Players */}
         <Card className="bg-slate-800/60 border-slate-700 backdrop-blur">
           <CardHeader className="pb-3">
             <CardTitle className="text-white flex items-center gap-2 text-base">
-              <Users className="w-4 h-4 text-purple-400" /> Players
+              <Users className="w-4 h-4 text-purple-400" /> {t("players")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -131,7 +155,7 @@ export default function Home() {
               disabled={players.length >= 12}
               className="w-full border-dashed border-slate-600 text-slate-400 hover:text-white hover:border-purple-500 bg-transparent"
             >
-              <Plus className="w-4 h-4 mr-1" /> Add player
+              <Plus className="w-4 h-4 mr-1" /> {t("addPlayer")}
             </Button>
           </CardContent>
         </Card>
@@ -143,7 +167,7 @@ export default function Home() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-slate-300 flex items-center gap-2">
-                  <Skull className="w-4 h-4 text-purple-400" /> Spies
+                  <Skull className="w-4 h-4 text-purple-400" /> {t("spies")}
                 </Label>
                 <span className="text-white font-semibold">{spyCount}</span>
               </div>
@@ -158,7 +182,7 @@ export default function Home() {
                       ? "bg-purple-600 hover:bg-purple-700 border-0"
                       : "border-slate-600 text-slate-400 hover:text-white bg-transparent"}
                   >
-                    {n} {n === 1 ? "spy" : "spies"}
+                    {n} {n === 1 ? t("spy") : t("spiesPlural")}
                   </Button>
                 ))}
               </div>
@@ -168,11 +192,11 @@ export default function Home() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-slate-300 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-purple-400" /> Locations
+                  <MapPin className="w-4 h-4 text-purple-400" /> {t("locations")}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="bg-slate-700 text-slate-300">
-                    {selectedLocations.size}/{LOCATIONS.length}
+                    {selectedLocations.size}/{allLocations.length}
                   </Badge>
                   <Button
                     variant="ghost"
@@ -195,16 +219,16 @@ export default function Home() {
                   >
                     <div className="flex justify-between mb-2">
                       <Button variant="ghost" size="sm" className="text-xs text-slate-400 h-6 px-2"
-                        onClick={() => setSelectedLocations(new Set(DEFAULT_LOCATION_NAMES))}>
-                        Select all
+                        onClick={() => setSelectedLocations(new Set(allLocationNames))}>
+                        {t("selectAll")}
                       </Button>
                       <Button variant="ghost" size="sm" className="text-xs text-slate-400 h-6 px-2"
-                        onClick={() => setSelectedLocations(new Set([LOCATIONS[0].name]))}>
-                        Deselect all
+                        onClick={() => setSelectedLocations(new Set([allLocationNames[0]]))}>
+                        {t("deselectAll")}
                       </Button>
                     </div>
                     <div className="grid grid-cols-2 gap-1 max-h-52 overflow-y-auto pr-1">
-                      {LOCATIONS.map((loc) => (
+                      {allLocations.map((loc) => (
                         <button
                           key={loc.name}
                           onClick={() => toggleLocation(loc.name)}
@@ -226,11 +250,7 @@ export default function Home() {
         </Card>
 
         {error && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-red-400 text-sm text-center"
-          >
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-sm text-center">
             {error}
           </motion.p>
         )}
@@ -240,7 +260,7 @@ export default function Home() {
           size="lg"
           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg h-14 rounded-xl shadow-lg shadow-purple-900/40"
         >
-          Deal Cards
+          {t("dealCards")}
         </Button>
       </motion.div>
     </main>

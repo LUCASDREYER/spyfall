@@ -1,4 +1,6 @@
-import { LOCATIONS, Location } from "./locations";
+import { Location } from "./locations";
+import { Lang } from "./i18n";
+import { getLocations } from "./locations-i18n";
 
 export interface PlayerToken {
   playerName: string;
@@ -7,7 +9,7 @@ export interface PlayerToken {
   role: string | null; // null if spy
   allLocations: string[];
   timerMinutes: number;
-  startedAt: number; // epoch ms
+  startedAt: number;
   totalPlayers: number;
   spyCount: number;
 }
@@ -16,7 +18,8 @@ export interface GameSetup {
   players: string[];
   timerMinutes: number;
   spyCount: number;
-  locationNames: string[]; // pool to pick from
+  locationNames: string[]; // pool to pick from (in the chosen language)
+  lang: Lang;
 }
 
 export interface GeneratedGame {
@@ -34,7 +37,8 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export function generateGame(setup: GameSetup): GeneratedGame {
-  const pool = LOCATIONS.filter((l) => setup.locationNames.includes(l.name));
+  const allLocations = getLocations(setup.lang);
+  const pool = allLocations.filter((l) => setup.locationNames.includes(l.name));
   if (pool.length === 0) throw new Error("No locations selected");
 
   const location = pool[Math.floor(Math.random() * pool.length)];
@@ -50,7 +54,7 @@ export function generateGame(setup: GameSetup): GeneratedGame {
     isSpy: spyIndices.has(i),
     location: location.name,
     role: spyIndices.has(i) ? null : (shuffledRoles[i % shuffledRoles.length] ?? "Guest"),
-    allLocations: setup.locationNames.sort(),
+    allLocations: setup.locationNames.slice().sort(),
     timerMinutes: setup.timerMinutes,
     startedAt,
     totalPlayers: setup.players.length,
@@ -59,10 +63,6 @@ export function generateGame(setup: GameSetup): GeneratedGame {
 
   return { location, tokens };
 }
-
-// --- Token encoding (no crypto needed for a fun party game) ---
-// We base64url-encode each player's token. It's not secret-secure,
-// but role info isn't easily stumbled on since each player gets their own URL.
 
 export function encodeToken(token: PlayerToken): string {
   const json = JSON.stringify(token);
