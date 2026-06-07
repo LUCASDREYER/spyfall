@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { decodeToken, PlayerToken } from "@/lib/game";
-import { Eye, EyeOff, MapPin, ChevronDown, ChevronUp, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, MapPin, ChevronDown, ChevronUp, ArrowRight, CheckCircle2, Home } from "lucide-react";
 
 type Phase = "handoff" | "viewing";
 
@@ -94,7 +94,13 @@ function GameContent() {
   // --- Handoff screen ---
   if (phase === "handoff") {
     return (
-      <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 gap-10">
+      <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 gap-10 relative">
+        <button
+          onClick={() => router.push("/")}
+          className="absolute top-4 left-4 flex items-center gap-1.5 text-slate-600 hover:text-slate-400 transition-colors text-sm"
+        >
+          <Home className="w-4 h-4" /> Home
+        </button>
         <motion.div
           key={`handoff-${playerIndex}`}
           initial={{ opacity: 0, scale: 0.95 }}
@@ -134,7 +140,14 @@ function GameContent() {
 
   // --- Card viewing screen ---
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 flex flex-col items-center justify-center p-4 gap-5">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 flex flex-col items-center justify-center p-4 gap-5 relative">
+      <button
+        onClick={() => router.push("/")}
+        className="absolute top-4 left-4 flex items-center gap-1.5 text-slate-600 hover:text-slate-400 transition-colors text-sm"
+      >
+        <Home className="w-4 h-4" /> Home
+      </button>
+
       {/* Player indicator */}
       <motion.div
         key={`viewing-header-${playerIndex}`}
