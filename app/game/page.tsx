@@ -156,8 +156,10 @@ function GameContent() {
         transition={{ delay: 0.05 }}
         className="w-full max-w-sm"
       >
-        <div className={`rounded-2xl border-2 p-6 space-y-5 backdrop-blur ${
-          token.isSpy
+        <div className={`rounded-2xl border-2 p-6 space-y-5 backdrop-blur transition-colors duration-500 ${
+          !revealed
+            ? "bg-slate-800/60 border-slate-700"
+            : token.isSpy
             ? "bg-red-950/60 border-red-700/70"
             : "bg-slate-800/60 border-purple-700/50"
         }`}>
@@ -215,8 +217,10 @@ function GameContent() {
           {/* Reveal / Hide toggle */}
           <Button
             onClick={() => setRevealed((r) => !r)}
-            className={`w-full font-semibold ${
-              token.isSpy
+            className={`w-full font-semibold transition-colors duration-500 ${
+              !revealed
+                ? "bg-purple-600 hover:bg-purple-700 text-white"
+                : token.isSpy
                 ? "bg-red-700 hover:bg-red-800 text-white"
                 : "bg-purple-600 hover:bg-purple-700 text-white"
             }`}
